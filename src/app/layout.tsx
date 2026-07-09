@@ -5,8 +5,12 @@ import { QueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ELO Trail",
-  description: "Age of Empires IV ELO tracking and analytics platform",
+  title: {
+    default: "ELO Trail",
+    template: "%s | ELO Trail",
+  },
+
+  description: "Track Age of Empires IV ELO history and performance analytics.",
 };
 
 export default function RootLayout({
