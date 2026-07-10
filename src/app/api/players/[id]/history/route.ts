@@ -62,6 +62,9 @@ function failure(
     },
     {
       status,
+      headers: {
+        "Cache-Control": "no-store",
+      },
     },
   );
 }
@@ -110,7 +113,23 @@ export async function GET(request: Request, context: RouteContext) {
     );
   }
 
-  const leaderboard = leaderboardParameter ?? undefined;
+  /*
+   * ELO Trail only tracks underlying ranked 1v1
+   * matchmaking ELO. Ranked points are not supported.
+   */
+  if (
+    leaderboardParameter !== undefined &&
+    leaderboardParameter !== null &&
+    leaderboardParameter !== "rm_1v1"
+  ) {
+    return failure(
+      400,
+      "UNSUPPORTED_RATING_SYSTEM",
+      "ELO Trail only supports ranked 1v1 matchmaking ELO.",
+    );
+  }
+
+  const leaderboard: HistoryLeaderboard = "rm_1v1";
 
   try {
     const games = await getPlayerGames(playerId, {
@@ -127,12 +146,19 @@ export async function GET(request: Request, context: RouteContext) {
       },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+          /*
+           * Do not allow an earlier ranked-points payload
+           * to survive while the ELO mapper is being built.
+           */
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+          "X-Elo-Trail-Data-Version": "matchmaking-elo-v2",
         },
       },
     );
   } catch (error) {
-    console.error("Failed to load player history", {
+    console.error("Failed to load matchmaking ELO history", {
       playerId,
       leaderboard,
       error,
@@ -141,7 +167,7 @@ export async function GET(request: Request, context: RouteContext) {
     return failure(
       502,
       "HISTORY_UPSTREAM_ERROR",
-      "Player history is temporarily unavailable.",
+      "Matchmaking ELO history is temporarily unavailable.",
     );
   }
 }

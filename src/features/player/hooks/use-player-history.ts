@@ -10,43 +10,54 @@ export interface UsePlayerHistoryOptions {
   enabled?: boolean;
 }
 
+const HISTORY_DATA_VERSION = "matchmaking-elo-v2";
+
 function buildHistoryUrl(playerId: number, options: UsePlayerHistoryOptions) {
   const params = new URLSearchParams();
 
-  if (options.leaderboard) {
-    params.set("leaderboard", options.leaderboard);
-  }
+  /*
+   * The application only supports underlying ranked
+   * matchmaking ELO. Never request rm_solo ranked points.
+   */
+  params.set("leaderboard", "rm_1v1");
 
-  if (options.limit !== undefined) {
-    params.set("limit", String(options.limit));
-  }
+  params.set("limit", String(options.limit ?? 200));
 
-  if (options.page !== undefined) {
-    params.set("page", String(options.page));
-  }
+  params.set("page", String(options.page ?? 1));
 
-  const query = params.toString();
+  /*
+   * This invalidates browser and intermediary responses
+   * created before ELO Trail switched from rating to MMR.
+   */
+  params.set("dataVersion", HISTORY_DATA_VERSION);
 
-  return `/api/players/${playerId}/history${query ? `?${query}` : ""}`;
+  return `/api/players/${playerId}/history?${params.toString()}`;
 }
 
 async function fetchPlayerHistory(
   playerId: number,
   options: UsePlayerHistoryOptions,
 ): Promise<EloHistory> {
-  const response = await fetch(buildHistoryUrl(playerId, options));
+  const response = await fetch(buildHistoryUrl(playerId, options), {
+    cache: "no-store",
+
+    headers: {
+      Accept: "application/json",
+      "Cache-Control": "no-cache",
+    },
+  });
 
   const payload = (await response.json()) as ApiResponse<EloHistory>;
 
   if (!response.ok) {
     const message =
-      payload.error?.message ?? "Player history could not be loaded.";
+      payload.error?.message ?? "Matchmaking ELO history could not be loaded.";
 
     throw new Error(message);
   }
 
   if (!payload.data) {
-    throw new Error("Player history response did not include data.");
+    throw new Error("The matchmaking ELO response did not include data.");
   }
 
   return payload.data;
@@ -56,27 +67,42 @@ export function usePlayerHistory(
   playerId: number | null | undefined,
   options: UsePlayerHistoryOptions = {},
 ) {
-  const { enabled = true, leaderboard, limit = 200, page = 1 } = options;
+  const { enabled = true, limit = 200, page = 1 } = options;
 
   const hasValidPlayerId =
     typeof playerId === "number" && Number.isInteger(playerId) && playerId > 0;
 
   return useQuery({
-    queryKey: ["player-history", playerId, leaderboard ?? "all", limit, page],
+    queryKey: [
+      "player-history",
+      HISTORY_DATA_VERSION,
+      playerId,
+      "rm_1v1",
+      limit,
+      page,
+    ],
 
     queryFn: () =>
       fetchPlayerHistory(playerId as number, {
-        leaderboard,
+        leaderboard: "rm_1v1",
         limit,
         page,
       }),
 
     enabled: enabled && hasValidPlayerId,
 
-    staleTime: 5 * 60 * 1000,
+    /*
+     * Temporarily keep this at zero while validating the
+     * migration from ranked points to matchmaking ELO.
+     */
+    staleTime: 0,
 
-    gcTime: 30 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
 
     retry: 1,
+
+    refetchOnMount: "always",
+
+    refetchOnWindowFocus: true,
   });
 }

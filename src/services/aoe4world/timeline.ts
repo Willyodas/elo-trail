@@ -46,11 +46,11 @@ function getOpponent(
     );
 
     if (playerTeamIndex >= 0) {
-      const opponentTeam = game.teams.find(
+      const opposingTeam = game.teams.find(
         (_, index) => index !== playerTeamIndex,
       );
 
-      const opponent = opponentTeam
+      const opposingPlayer = opposingTeam
         ?.map((entry) => entry.player)
         .find(
           (player): player is Aoe4WorldGamePlayer =>
@@ -59,8 +59,8 @@ function getOpponent(
             player.profile_id !== playerId,
         );
 
-      if (opponent) {
-        return opponent;
+      if (opposingPlayer) {
+        return opposingPlayer;
       }
     }
   }
@@ -91,18 +91,23 @@ function toMatchSummary(
 
   const player = players.find((entry) => entry.profile_id === playerId);
 
+  /*
+   * ELO Trail uses only matchmaking ELO.
+   *
+   * rating / rating_diff = ranked-season points
+   * mmr / mmr_diff       = matchmaking ELO
+   */
   if (
     !player ||
-    typeof player.rating !== "number" ||
-    !Number.isFinite(player.rating)
+    typeof player.mmr !== "number" ||
+    !Number.isFinite(player.mmr)
   ) {
     return null;
   }
 
-  const ratingChange =
-    typeof player.rating_diff === "number" &&
-    Number.isFinite(player.rating_diff)
-      ? player.rating_diff
+  const eloChange =
+    typeof player.mmr_diff === "number" && Number.isFinite(player.mmr_diff)
+      ? player.mmr_diff
       : 0;
 
   const opponent = getOpponent(game, playerId);
@@ -112,7 +117,7 @@ function toMatchSummary(
 
     startedAt: startedAt.toISOString(),
 
-    leaderboard: game.leaderboard ?? game.kind ?? undefined,
+    leaderboard: game.mmr_leaderboard ?? game.kind ?? undefined,
 
     map: game.map ?? game.map_name ?? undefined,
 
@@ -120,11 +125,11 @@ function toMatchSummary(
 
     result: normaliseResult(player.result),
 
-    ratingBefore: player.rating,
+    ratingBefore: player.mmr,
 
-    ratingAfter: player.rating + ratingChange,
+    ratingAfter: player.mmr + eloChange,
 
-    ratingChange,
+    ratingChange: eloChange,
 
     opponentProfileId: opponent?.profile_id ?? undefined,
 

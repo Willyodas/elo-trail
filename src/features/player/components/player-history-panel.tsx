@@ -6,7 +6,7 @@ import { AlertCircle, LoaderCircle, Swords, X } from "lucide-react";
 
 import type { Aoe4WorldPlayer } from "@/services/aoe4world";
 import { calculateEloStatistics } from "@/services/aoe4world/statistics";
-import type { EloPoint, MatchSummary } from "@/types/history";
+import type { EloPoint, EloStatistics, MatchSummary } from "@/types/history";
 
 import { usePlayerHistory } from "../hooks/use-player-history";
 
@@ -22,6 +22,41 @@ interface PlayerHistoryPanelProps {
   onClose: () => void;
 }
 
+interface MatchmakingCareerSummary {
+  currentElo: number | null;
+  games: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+}
+
+function getMatchmakingCareerSummary(
+  player: Aoe4WorldPlayer,
+): MatchmakingCareerSummary {
+  const leaderboard = player.leaderboards?.rm_1v1_elo;
+
+  return {
+    currentElo:
+      typeof leaderboard?.rating === "number" ? leaderboard.rating : null,
+
+    games:
+      typeof leaderboard?.games_count === "number"
+        ? leaderboard.games_count
+        : 0,
+
+    wins:
+      typeof leaderboard?.wins_count === "number" ? leaderboard.wins_count : 0,
+
+    losses:
+      typeof leaderboard?.losses_count === "number"
+        ? leaderboard.losses_count
+        : 0,
+
+    winRate:
+      typeof leaderboard?.win_rate === "number" ? leaderboard.win_rate : null,
+  };
+}
+
 function getRangeStart(range: HistoryRange) {
   if (range === "all") {
     return null;
@@ -35,35 +70,14 @@ function getRangeStart(range: HistoryRange) {
   return start;
 }
 
-function getPlayerRating(player: Aoe4WorldPlayer) {
-  const preferredKeys = ["rm_1v1", "rm_solo", "qm_1v1"];
-
-  for (const key of preferredKeys) {
-    const leaderboard = player.leaderboards?.[key];
-
-    if (typeof leaderboard?.rating === "number") {
-      return leaderboard.rating;
-    }
-  }
-
-  const firstRatedLeaderboard = Object.values(player.leaderboards ?? {}).find(
-    (leaderboard) => typeof leaderboard.rating === "number",
-  );
-
-  return firstRatedLeaderboard?.rating ?? null;
-}
-
-function filterByRange<T extends { timestamp: string }>(
-  values: T[],
-  range: HistoryRange,
-) {
+function filterPointsByRange(points: EloPoint[], range: HistoryRange) {
   const start = getRangeStart(range);
 
   if (!start) {
-    return values;
+    return points;
   }
 
-  return values.filter((value) => new Date(value.timestamp) >= start);
+  return points.filter((point) => new Date(point.timestamp) >= start);
 }
 
 function filterMatchesByRange(matches: MatchSummary[], range: HistoryRange) {
@@ -76,28 +90,68 @@ function filterMatchesByRange(matches: MatchSummary[], range: HistoryRange) {
   return matches.filter((match) => new Date(match.startedAt) >= start);
 }
 
-function createStatistics(points: EloPoint[], matches: MatchSummary[]) {
+function createDisplayStatistics(
+  points: EloPoint[],
+  matches: MatchSummary[],
+  career: MatchmakingCareerSummary,
+): EloStatistics {
   const calculated = calculateEloStatistics(matches);
 
   if (points.length === 0) {
-    return calculated;
+    return {
+      ...calculated,
+
+      currentRating: career.currentElo,
+
+      games: career.games,
+
+      wins: career.wins,
+
+      losses: career.losses,
+
+      winRate: career.winRate,
+    };
   }
 
   const ratings = points.map((point) => point.rating);
 
+  const firstPoint = points[0];
+  const lastPoint = points.at(-1);
+
+  const currentRating = career.currentElo ?? lastPoint?.rating ?? null;
+
+  const firstRating =
+    firstPoint === undefined
+      ? null
+      : firstPoint.rating - firstPoint.ratingChange;
+
   return {
-    ...calculated,
+    currentRating,
 
-    currentRating: ratings.at(-1) ?? null,
-
-    peakRating: Math.max(...ratings),
+    peakRating:
+      currentRating === null
+        ? Math.max(...ratings)
+        : Math.max(...ratings, currentRating),
 
     lowestRating: Math.min(...ratings),
 
     ratingChange:
-      ratings.length > 1
-        ? ratings.at(-1)! - ratings[0]!
-        : (points[0]?.ratingChange ?? 0),
+      currentRating !== null && firstRating !== null
+        ? currentRating - firstRating
+        : calculated.ratingChange,
+
+    /*
+     * Career totals come from rm_1v1_elo.
+     * The games endpoint is paginated and may contain only
+     * the most recent 50 history records.
+     */
+    games: career.games,
+
+    wins: career.wins,
+
+    losses: career.losses,
+
+    winRate: career.winRate,
   };
 }
 
@@ -110,13 +164,15 @@ export function PlayerHistoryPanel({
   const { data, isLoading, isFetching, error, refetch } = usePlayerHistory(
     player.profile_id,
     {
-      leaderboard: "rm_solo",
+      leaderboard: "rm_1v1",
       limit: 200,
     },
   );
 
+  const career = useMemo(() => getMatchmakingCareerSummary(player), [player]);
+
   const filteredPoints = useMemo(
-    () => filterByRange(data?.points ?? [], range),
+    () => filterPointsByRange(data?.points ?? [], range),
     [data?.points, range],
   );
 
@@ -126,11 +182,9 @@ export function PlayerHistoryPanel({
   );
 
   const statistics = useMemo(
-    () => createStatistics(filteredPoints, filteredMatches),
-    [filteredMatches, filteredPoints],
+    () => createDisplayStatistics(filteredPoints, filteredMatches, career),
+    [career, filteredMatches, filteredPoints],
   );
-
-  const profileRating = getPlayerRating(player);
 
   return (
     <section className="space-y-6 rounded-2xl border border-black/10 bg-black/[0.02] p-4 sm:p-6 dark:border-white/10 dark:bg-white/[0.03]">
@@ -140,7 +194,7 @@ export function PlayerHistoryPanel({
             <Swords className="size-5" aria-hidden="true" />
 
             <p className="text-sm font-medium text-black/55 dark:text-white/55">
-              Ranked solo history
+              Ranked matchmaking ELO history
             </p>
           </div>
 
@@ -153,9 +207,14 @@ export function PlayerHistoryPanel({
 
             {player.country && <span>{player.country}</span>}
 
-            {profileRating !== null && (
+            {career.currentElo !== null && (
+              <span>Matchmaking ELO: {career.currentElo.toLocaleString()}</span>
+            )}
+
+            {career.games > 0 && (
               <span>
-                Current profile rating: {profileRating.toLocaleString()}
+                {career.wins.toLocaleString()} wins ·{" "}
+                {career.losses.toLocaleString()} losses
               </span>
             )}
           </div>
@@ -176,14 +235,16 @@ export function PlayerHistoryPanel({
           <div className="flex items-center gap-3 text-black/60 dark:text-white/60">
             <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
 
-            <span>Loading ELO history…</span>
+            <span>Loading matchmaking ELO history…</span>
           </div>
         </div>
       ) : error ? (
         <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed border-red-500/30 p-6 text-center">
           <AlertCircle className="size-8 text-red-500" aria-hidden="true" />
 
-          <h3 className="mt-3 font-semibold">History could not be loaded</h3>
+          <h3 className="mt-3 font-semibold">
+            ELO history could not be loaded
+          </h3>
 
           <p className="mt-1 max-w-md text-sm text-black/55 dark:text-white/55">
             {error.message}
@@ -201,10 +262,12 @@ export function PlayerHistoryPanel({
         <>
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <h3 className="text-lg font-semibold">Rating progression</h3>
+              <h3 className="text-lg font-semibold">
+                Matchmaking ELO progression
+              </h3>
 
               <p className="text-sm text-black/55 dark:text-white/55">
-                {filteredPoints.length.toLocaleString()} rated games shown
+                {filteredPoints.length.toLocaleString()} history points shown
                 {isFetching ? " · refreshing" : ""}
               </p>
             </div>
@@ -223,13 +286,14 @@ export function PlayerHistoryPanel({
               <h3 className="text-lg font-semibold">Recent games</h3>
 
               <p className="text-sm text-black/55 dark:text-white/55">
-                Latest games in the selected range
+                Matchmaking ELO changes from the latest games in the selected
+                range
               </p>
             </div>
 
             {filteredMatches.length === 0 ? (
               <div className="rounded-xl border border-dashed border-black/15 p-8 text-center text-sm text-black/55 dark:border-white/15 dark:text-white/55">
-                No games are available for this range.
+                No matchmaking ELO games are available for this range.
               </div>
             ) : (
               <div className="overflow-hidden rounded-xl border border-black/10 dark:border-white/10">
@@ -269,7 +333,9 @@ export function PlayerHistoryPanel({
                               new Date(match.startedAt),
                               "d MMM yyyy, h:mm a",
                             )}
+
                             {match.map ? ` · ${match.map}` : ""}
+
                             {match.civilization
                               ? ` · ${match.civilization}`
                               : ""}

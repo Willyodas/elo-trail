@@ -14,7 +14,7 @@ interface HistoryStatCardsProps {
   statistics: EloStatistics;
 }
 
-function formatRating(value: number | null) {
+function formatElo(value: number | null) {
   return value === null ? "—" : value.toLocaleString();
 }
 
@@ -32,6 +32,7 @@ function formatChange(value: number) {
 
 export function HistoryStatCards({ statistics }: HistoryStatCardsProps) {
   const isPositive = statistics.ratingChange > 0;
+
   const isNegative = statistics.ratingChange < 0;
 
   const ChangeIcon = isPositive ? ArrowUp : isNegative ? ArrowDown : Activity;
@@ -39,31 +40,31 @@ export function HistoryStatCards({ statistics }: HistoryStatCardsProps) {
   const cards = [
     {
       label: "Current ELO",
-      value: formatRating(statistics.currentRating),
+      value: formatElo(statistics.currentRating),
       icon: Gauge,
     },
     {
       label: "Peak ELO",
-      value: formatRating(statistics.peakRating),
+      value: formatElo(statistics.peakRating),
       icon: Crown,
     },
     {
       label: "Lowest ELO",
-      value: formatRating(statistics.lowestRating),
+      value: formatElo(statistics.lowestRating),
       icon: BarChart3,
     },
     {
-      label: "Net change",
+      label: "ELO change",
       value: formatChange(statistics.ratingChange),
       icon: ChangeIcon,
     },
     {
-      label: "Games",
+      label: "Career games",
       value: statistics.games.toLocaleString(),
       icon: Activity,
     },
     {
-      label: "Win rate",
+      label: "Career win rate",
       value: formatWinRate(statistics.winRate),
       icon: Percent,
     },

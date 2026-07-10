@@ -11,7 +11,9 @@ function createGame(overrides: Partial<Aoe4WorldGame> = {}): Aoe4WorldGame {
     game_id: 1,
     started_at: "2026-07-01T10:00:00.000Z",
     kind: "rm_1v1",
+    mmr_leaderboard: "rm_1v1_elo",
     map: "Dry Arabia",
+
     teams: [
       [
         {
@@ -20,8 +22,15 @@ function createGame(overrides: Partial<Aoe4WorldGame> = {}): Aoe4WorldGame {
             name: "Willyodas",
             civilization: "english",
             result: "win",
-            rating: 1000,
-            rating_diff: 15,
+            mmr: 1000,
+            mmr_diff: 15,
+
+            /*
+             * These ranked-points fields intentionally
+             * differ from MMR to verify they are ignored.
+             */
+            rating: 800,
+            rating_diff: 5,
           },
         },
       ],
@@ -33,23 +42,26 @@ function createGame(overrides: Partial<Aoe4WorldGame> = {}): Aoe4WorldGame {
             name: "Opponent",
             civilization: "french",
             result: "loss",
-            rating: 995,
-            rating_diff: -15,
+            mmr: 995,
+            mmr_diff: -15,
+            rating: 850,
+            rating_diff: -5,
           },
         },
       ],
     ],
+
     ...overrides,
   };
 }
 
 describe("buildEloHistory", () => {
-  it("maps nested AoE4World players into history", () => {
-    const history = buildEloHistory(PLAYER_ID, [createGame()], "rm_solo");
+  it("maps matchmaking MMR into ELO history", () => {
+    const history = buildEloHistory(PLAYER_ID, [createGame()], "rm_1v1");
 
     expect(history.playerId).toBe(PLAYER_ID);
 
-    expect(history.leaderboard).toBe("rm_solo");
+    expect(history.leaderboard).toBe("rm_1v1");
 
     expect(history.matches).toHaveLength(1);
 
@@ -68,6 +80,51 @@ describe("buildEloHistory", () => {
     });
   });
 
+  it("ignores seasonal ranked points when matchmaking MMR exists", () => {
+    const history = buildEloHistory(PLAYER_ID, [
+      createGame({
+        teams: [
+          [
+            {
+              player: {
+                profile_id: PLAYER_ID,
+                name: "Willyodas",
+                result: "win",
+
+                mmr: 929,
+                mmr_diff: 9,
+
+                rating: 848,
+                rating_diff: 12,
+              },
+            },
+          ],
+
+          [
+            {
+              player: {
+                profile_id: OPPONENT_ID,
+                name: "Opponent",
+                mmr: 920,
+                mmr_diff: -9,
+                rating: 900,
+                rating_diff: -12,
+              },
+            },
+          ],
+        ],
+      }),
+    ]);
+
+    expect(history.matches[0]).toMatchObject({
+      ratingBefore: 929,
+      ratingAfter: 938,
+      ratingChange: 9,
+    });
+
+    expect(history.matches[0]?.ratingBefore).not.toBe(848);
+  });
+
   it("sorts games chronologically", () => {
     const laterGame = createGame({
       game_id: 2,
@@ -84,7 +141,7 @@ describe("buildEloHistory", () => {
     expect(history.matches.map((match) => match.gameId)).toEqual([1, 2]);
   });
 
-  it("uses rating plus rating difference as the resulting rating", () => {
+  it("uses MMR plus MMR difference as the resulting ELO", () => {
     const history = buildEloHistory(PLAYER_ID, [
       createGame({
         teams: [
@@ -94,8 +151,10 @@ describe("buildEloHistory", () => {
                 profile_id: PLAYER_ID,
                 name: "Willyodas",
                 result: "loss",
-                rating: 1500,
-                rating_diff: -18,
+                mmr: 1500,
+                mmr_diff: -18,
+                rating: 1200,
+                rating_diff: -7,
               },
             },
           ],
@@ -105,6 +164,8 @@ describe("buildEloHistory", () => {
               player: {
                 profile_id: OPPONENT_ID,
                 name: "Opponent",
+                mmr: 1510,
+                mmr_diff: 18,
               },
             },
           ],
@@ -129,7 +190,7 @@ describe("buildEloHistory", () => {
           {
             player: {
               profile_id: PLAYER_ID,
-              rating: 1000,
+              mmr: 1000,
               result: "WON",
             },
           },
@@ -145,7 +206,7 @@ describe("buildEloHistory", () => {
           {
             player: {
               profile_id: PLAYER_ID,
-              rating: 1000,
+              mmr: 1000,
               result: "lost",
             },
           },
@@ -161,7 +222,7 @@ describe("buildEloHistory", () => {
           {
             player: {
               profile_id: PLAYER_ID,
-              rating: 1000,
+              mmr: 1000,
               result: null,
             },
           },
@@ -189,7 +250,7 @@ describe("buildEloHistory", () => {
           {
             player: {
               profile_id: 999,
-              rating: 1200,
+              mmr: 1200,
             },
           },
         ],
@@ -199,9 +260,7 @@ describe("buildEloHistory", () => {
     const history = buildEloHistory(PLAYER_ID, [game]);
 
     expect(history.matches).toEqual([]);
-
     expect(history.points).toEqual([]);
-
     expect(history.statistics.games).toBe(0);
   });
 
@@ -215,7 +274,7 @@ describe("buildEloHistory", () => {
     expect(history.matches).toEqual([]);
   });
 
-  it("ignores games without a numeric rating", () => {
+  it("ignores games without numeric matchmaking MMR", () => {
     const history = buildEloHistory(PLAYER_ID, [
       createGame({
         teams: [
@@ -223,7 +282,13 @@ describe("buildEloHistory", () => {
             {
               player: {
                 profile_id: PLAYER_ID,
-                rating: null,
+                mmr: null,
+
+                /*
+                 * A ranked-points value must not
+                 * be used as an ELO fallback.
+                 */
+                rating: 848,
               },
             },
           ],
@@ -232,6 +297,28 @@ describe("buildEloHistory", () => {
     ]);
 
     expect(history.matches).toEqual([]);
+    expect(history.points).toEqual([]);
+  });
+
+  it("does not fall back to ranked points when MMR is missing", () => {
+    const history = buildEloHistory(PLAYER_ID, [
+      createGame({
+        teams: [
+          [
+            {
+              player: {
+                profile_id: PLAYER_ID,
+                rating: 848,
+                rating_diff: 12,
+              },
+            },
+          ],
+        ],
+      }),
+    ]);
+
+    expect(history.matches).toEqual([]);
+    expect(history.statistics.currentRating).toBeNull();
   });
 
   it("throws for an invalid player ID", () => {
@@ -249,14 +336,16 @@ describe("buildEloHistory", () => {
         {
           profile_id: PLAYER_ID,
           name: "Willyodas",
-          rating: 1100,
-          rating_diff: 12,
+          mmr: 1100,
+          mmr_diff: 12,
           result: "win",
         },
 
         {
           profile_id: OPPONENT_ID,
           name: "Opponent",
+          mmr: 1090,
+          mmr_diff: -12,
         },
       ],
     };
