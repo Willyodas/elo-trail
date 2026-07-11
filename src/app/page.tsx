@@ -1,4 +1,12 @@
 import { PlayerSearch } from "@/features/player";
+import Link from "next/link";
+
+<Link
+  href="/compare"
+  className="inline-flex rounded-lg border border-black/10 bg-white px-4 py-2 text-sm font-medium transition hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+>
+  Compare players
+</Link>;
 
 export default function HomePage() {
   return (

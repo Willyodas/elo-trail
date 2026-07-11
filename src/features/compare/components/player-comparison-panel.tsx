@@ -1,0 +1,215 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import {
+  ArrowRightLeft,
+  LoaderCircle,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+
+import type { Aoe4WorldPlayer } from "@/services/aoe4world";
+import {
+  HistoryRangeSelector,
+  type HistoryRange,
+  usePlayerHistory,
+} from "@/features/player";
+import type { EloPoint } from "@/types/history";
+
+import { EloComparisonChart } from "./elo-comparison-chart";
+
+interface PlayerComparisonPanelProps {
+  playerOne: Aoe4WorldPlayer;
+  playerTwo: Aoe4WorldPlayer;
+  onSwap: () => void;
+}
+
+function getRangeStart(range: HistoryRange) {
+  const days = Number.parseInt(range, 10);
+
+  const start = new Date();
+
+  start.setDate(start.getDate() - days);
+
+  return start;
+}
+
+function filterPoints(points: EloPoint[], range: HistoryRange) {
+  const start = getRangeStart(range);
+
+  return points.filter((point) => new Date(point.timestamp) >= start);
+}
+
+function getCurrentElo(player: Aoe4WorldPlayer) {
+  const rating = player.leaderboards?.rm_1v1_elo?.rating;
+
+  return typeof rating === "number" ? rating : null;
+}
+
+function formatElo(value: number | null) {
+  return value === null ? "—" : value.toLocaleString();
+}
+
+export function PlayerComparisonPanel({
+  playerOne,
+  playerTwo,
+  onSwap,
+}: PlayerComparisonPanelProps) {
+  const [range, setRange] = useState<HistoryRange>("180d");
+
+  const playerOneHistory = usePlayerHistory(playerOne.profile_id, {
+    days: 180,
+  });
+
+  const playerTwoHistory = usePlayerHistory(playerTwo.profile_id, {
+    days: 180,
+  });
+
+  const playerOnePoints = useMemo(
+    () => filterPoints(playerOneHistory.data?.points ?? [], range),
+    [playerOneHistory.data?.points, range],
+  );
+
+  const playerTwoPoints = useMemo(
+    () => filterPoints(playerTwoHistory.data?.points ?? [], range),
+    [playerTwoHistory.data?.points, range],
+  );
+
+  const playerOneElo = getCurrentElo(playerOne);
+
+  const playerTwoElo = getCurrentElo(playerTwo);
+
+  const difference =
+    playerOneElo !== null && playerTwoElo !== null
+      ? playerOneElo - playerTwoElo
+      : null;
+
+  const isLoading = playerOneHistory.isLoading || playerTwoHistory.isLoading;
+
+  const error = playerOneHistory.error ?? playerTwoHistory.error;
+
+  return (
+    <section className="space-y-6 rounded-2xl border border-black/10 bg-black/[0.02] p-4 sm:p-6 dark:border-white/10 dark:bg-white/[0.03]">
+      <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div>
+          <p className="text-sm font-semibold tracking-[0.16em] text-black/45 uppercase dark:text-white/45">
+            Matchmaking ELO comparison
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold tracking-tight">
+            {playerOne.name} vs {playerTwo.name}
+          </h2>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <HistoryRangeSelector value={range} onChange={setRange} />
+
+          <button
+            type="button"
+            onClick={onSwap}
+            className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm font-medium transition hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+          >
+            <ArrowRightLeft className="size-4" aria-hidden="true" />
+            Swap
+          </button>
+        </div>
+      </header>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+          <p className="text-sm text-black/50 dark:text-white/50">
+            {playerOne.name}
+          </p>
+
+          <p className="mt-2 text-3xl font-semibold">
+            {formatElo(playerOneElo)}
+          </p>
+
+          <p className="text-sm text-black/45 dark:text-white/45">
+            Current ELO
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+          <p className="text-sm text-black/50 dark:text-white/50">
+            ELO difference
+          </p>
+
+          <div className="mt-2 flex items-center gap-2">
+            {difference !== null &&
+              difference !== 0 &&
+              (difference > 0 ? (
+                <TrendingUp className="size-5" aria-hidden="true" />
+              ) : (
+                <TrendingDown className="size-5" aria-hidden="true" />
+              ))}
+
+            <p className="text-3xl font-semibold">
+              {difference === null
+                ? "—"
+                : Math.abs(difference).toLocaleString()}
+            </p>
+          </div>
+
+          <p className="text-sm text-black/45 dark:text-white/45">
+            {difference === null || difference === 0
+              ? "Players are level"
+              : difference > 0
+                ? `${playerOne.name} leads`
+                : `${playerTwo.name} leads`}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+          <p className="text-sm text-black/50 dark:text-white/50">
+            {playerTwo.name}
+          </p>
+
+          <p className="mt-2 text-3xl font-semibold">
+            {formatElo(playerTwoElo)}
+          </p>
+
+          <p className="text-sm text-black/45 dark:text-white/45">
+            Current ELO
+          </p>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex min-h-96 items-center justify-center">
+          <div className="flex items-center gap-3 text-black/55 dark:text-white/55">
+            <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+            Loading both ELO histories…
+          </div>
+        </div>
+      ) : error ? (
+        <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-6 text-center">
+          <h3 className="font-semibold text-red-700 dark:text-red-400">
+            Comparison could not be loaded
+          </h3>
+
+          <p className="mt-1 text-sm text-red-700/75 dark:text-red-400/75">
+            {error.message}
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/10 dark:bg-black/10">
+          <EloComparisonChart
+            players={[
+              {
+                profileId: playerOne.profile_id,
+                name: playerOne.name,
+                points: playerOnePoints,
+              },
+              {
+                profileId: playerTwo.profile_id,
+                name: playerTwo.name,
+                points: playerTwoPoints,
+              },
+            ]}
+          />
+        </div>
+      )}
+    </section>
+  );
+}

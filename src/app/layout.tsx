@@ -5,19 +5,16 @@ import { QueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: {
-    default: "ELO Trail",
-    template: "%s | ELO Trail",
-  },
-
-  description: "Track Age of Empires IV ELO history and performance analytics.",
+  title: "ELO Trail",
+  description:
+    "Explore and compare Age of Empires IV ranked matchmaking ELO history.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
