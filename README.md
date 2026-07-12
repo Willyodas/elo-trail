@@ -49,3 +49,5 @@ ELO Trail uses the AoE4World public API responsibly.
 - Requests identify the application with a dedicated User-Agent
 
 <!-- Main branch protection test -->
+
+<!-- Main branch protection test -->
