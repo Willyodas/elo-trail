@@ -8,7 +8,11 @@ export interface UsePlayerHistoryOptions {
   enabled?: boolean;
 }
 
-const HISTORY_DATA_VERSION = "matchmaking-elo-paginated-v1";
+const HISTORY_DATA_VERSION = "responsible-api-3600-v1";
+
+const HISTORY_STALE_TIME_MS = 15 * 60 * 1000;
+
+const HISTORY_GC_TIME_MS = 60 * 60 * 1000;
 
 function buildHistoryUrl(playerId: number, days: number) {
   const params = new URLSearchParams({
@@ -53,21 +57,39 @@ export function usePlayerHistory(
   const hasValidPlayerId =
     typeof playerId === "number" && Number.isInteger(playerId) && playerId > 0;
 
-  const validDays = Number.isInteger(days) && days > 0 && days <= 180;
+  const hasValidDays = Number.isInteger(days) && days > 0 && days <= 180;
 
   return useQuery({
     queryKey: ["player-history", HISTORY_DATA_VERSION, playerId, days],
 
     queryFn: () => fetchPlayerHistory(playerId as number, days),
 
-    enabled: enabled && hasValidPlayerId && validDays,
+    enabled: enabled && hasValidPlayerId && hasValidDays,
 
-    staleTime: 5 * 60 * 1000,
+    /*
+     * Reusing history for 15 minutes prevents repeat
+     * pagination requests as users move around the UI.
+     */
+    staleTime: HISTORY_STALE_TIME_MS,
 
-    gcTime: 30 * 60 * 1000,
+    gcTime: HISTORY_GC_TIME_MS,
 
     retry: 1,
 
+    /*
+     * History must not refresh just because the user
+     * changes tabs or reconnects their browser.
+     */
     refetchOnWindowFocus: false,
+
+    refetchOnReconnect: false,
+
+    refetchOnMount: false,
+
+    /*
+     * No polling. All refreshes remain user-driven or
+     * governed by the route/cache expiry.
+     */
+    refetchInterval: false,
   });
 }

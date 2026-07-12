@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PlayerSearch } from "@/features/player";
+import { HomepageLeaderboard } from "@/features/leaderboard";
 
 export default function DashboardPage() {
   return (
@@ -30,6 +31,7 @@ export default function DashboardPage() {
           </Link>
         </header>
 
+        <HomepageLeaderboard />
         <PlayerSearch />
       </div>
     </main>

@@ -10,10 +10,11 @@ const DEFAULT_HISTORY_DAYS = 180;
 const MAX_HISTORY_DAYS = 180;
 
 /*
- * Forty pages × 50 games limits one history request
- * to a maximum of 2,000 game records.
+ * Seventy-two pages × 50 games gives a maximum of
+ * 3,600 matchmaking-ELO game records.
+ * Based on 20 games per day over 180 days in line with upper estimates of top players' activity.
  */
-const MAX_HISTORY_PAGES = 40;
+const MAX_HISTORY_PAGES = 72;
 
 interface RouteContext {
   params: Promise<{
@@ -126,15 +127,23 @@ export async function GET(request: Request, context: RouteContext) {
       },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+          /*
+           * Fresh for 15 minutes. A cached response may then be
+           * served for up to another 15 minutes while it refreshes.
+           * This limits normal worst-case visible staleness to
+           * approximately 30 minutes without continuous polling.
+           */
+          "Cache-Control": "public, s-maxage=900, stale-while-revalidate=900",
 
-          "X-Elo-Trail-Data-Version": "responsible-api-v1",
+          "X-Elo-Trail-Data-Version": "responsible-api-3600-v1",
 
-          "X-Elo-Trail-History-Days": String(days),
+          "X-Elo-Trail-History-Days": String(MAX_HISTORY_PAGES),
 
           "X-Elo-Trail-Games-Fetched": String(games.length),
 
           "X-Elo-Trail-Max-Pages": String(MAX_HISTORY_PAGES),
+
+          "X-Elo-Trail-Cache-Seconds": "900",
         },
       },
     );
