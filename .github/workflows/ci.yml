@@ -27,9 +27,6 @@ jobs:
     timeout-minutes: 15
 
     env:
-      # Placeholders allow Prisma Client
-      # generation and the Next.js build to run without connecting
-      # CI to the production Supabase database.
       DATABASE_URL: postgresql://prisma:prisma@localhost:5432/elo_trail
       DIRECT_URL: postgresql://prisma:prisma@localhost:5432/elo_trail
 
@@ -45,7 +42,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
