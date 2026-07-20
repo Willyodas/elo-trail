@@ -103,7 +103,7 @@ export function HomepageLeaderboardChart({
     <div
       className="h-[32rem] w-full sm:h-[38rem]"
       role="img"
-      aria-label="Ninety-day matchmaking ELO histories for the top eight players"
+      aria-label="Ninety-day matchmaking ELO histories for the top ten players"
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart

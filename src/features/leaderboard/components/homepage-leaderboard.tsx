@@ -98,8 +98,8 @@ export function HomepageLeaderboard() {
           </div>
 
           <p className="mt-1 text-sm text-black/55 dark:text-white/55">
-            Ninety-day matchmaking ELO histories for the current top eight RM
-            1v1 players.
+            Ninety-day matchmaking ELO histories for the current top ten RM 1v1
+            players.
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export function HomepageLeaderboard() {
         <HomepageLeaderboardChart players={data.players} />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {data.players.map((player) => (
           <article
             key={player.profileId}
