@@ -283,7 +283,7 @@ describe("aggregateOperationalEvents", () => {
           eventName: "leaderboard.refresh",
           route: "/api/cron/homepage-leaderboard",
           metadata: {
-            playerCount: 8,
+            playerCount: 10,
           },
           createdAt: new Date("2026-07-18T10:00:00.000Z"),
         }),
@@ -294,7 +294,7 @@ describe("aggregateOperationalEvents", () => {
       reads: 0,
       refreshes: 2,
       errors: 0,
-      latestPlayerCount: 8,
+      latestPlayerCount: 10,
     });
   });
 });

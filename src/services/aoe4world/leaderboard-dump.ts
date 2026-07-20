@@ -9,7 +9,7 @@ import {
 
 const AOE4WORLD_DUMPS_PAGE = "https://aoe4world.com/dumps";
 
-const TOP_PLAYER_COUNT = 8;
+const TOP_PLAYER_COUNT = 10;
 
 interface CsvRecord {
   [key: string]: string | undefined;

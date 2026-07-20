@@ -6,6 +6,7 @@ import { Crown, LoaderCircle } from "lucide-react";
 import type {
   HomepageLeaderboardApiResponse,
   HomepageLeaderboardData,
+  HomepageLeaderboardPlayer,
 } from "../types/homepage-leaderboard";
 
 import { HomepageLeaderboardChart } from "./homepage-leaderboard-chart";
@@ -35,7 +36,15 @@ function formatUpdatedAt(value: string) {
   }).format(new Date(value));
 }
 
-export function HomepageLeaderboard() {
+interface HomepageLeaderboardProps {
+  selectedProfileId: number | null;
+  onSelectPlayer: (player: HomepageLeaderboardPlayer) => void;
+}
+
+export function HomepageLeaderboard({
+  selectedProfileId,
+  onSelectPlayer,
+}: HomepageLeaderboardProps) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["homepage-leaderboard"],
 
@@ -98,8 +107,8 @@ export function HomepageLeaderboard() {
           </div>
 
           <p className="mt-1 text-sm text-black/55 dark:text-white/55">
-            Ninety-day matchmaking ELO histories for the current top eight RM
-            1v1 players.
+            Ninety-day matchmaking ELO histories for the current top ten RM 1v1
+            players.
           </p>
         </div>
 
@@ -112,11 +121,22 @@ export function HomepageLeaderboard() {
         <HomepageLeaderboardChart players={data.players} />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {data.players.map((player) => (
-          <article
+          <button
             key={player.profileId}
-            className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-3 dark:border-white/10 dark:bg-white/5"
+            type="button"
+            onClick={() => onSelectPlayer(player)}
+            aria-pressed={selectedProfileId === player.profileId}
+            aria-label={`View ${player.name} matchmaking ELO history`}
+            className={[
+              "flex w-full items-center justify-between gap-4 rounded-xl border bg-white p-3 text-left transition",
+              "hover:bg-black/[0.03] focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none",
+              "dark:bg-white/5 dark:hover:bg-white/10 dark:focus-visible:ring-white/40",
+              selectedProfileId === player.profileId
+                ? "border-black/40 ring-2 ring-black/10 dark:border-white/50 dark:ring-white/10"
+                : "border-black/10 dark:border-white/10",
+            ].join(" ")}
           >
             <div className="min-w-0">
               <p className="text-xs font-semibold text-black/45 dark:text-white/45">
@@ -137,7 +157,7 @@ export function HomepageLeaderboard() {
 
               <p className="text-xs text-black/45 dark:text-white/45">ELO</p>
             </div>
-          </article>
+          </button>
         ))}
       </div>
 

@@ -10,7 +10,7 @@ import { getPlayerGames } from "@/services/aoe4world/history";
 import { buildEloHistory } from "@/services/aoe4world/timeline";
 import { prisma } from "@/services/database/prisma";
 
-export const HOMEPAGE_LEADERBOARD_KEY = "rm-1v1-elo-top-8-90d";
+export const HOMEPAGE_LEADERBOARD_KEY = "rm-1v1-elo-top-10-90d";
 
 const HISTORY_DAYS = 90;
 const HISTORY_PAGE_SIZE = 50;
