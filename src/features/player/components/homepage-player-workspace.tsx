@@ -79,7 +79,7 @@ export function HomepagePlayerWorkspace() {
           aria-live="polite"
           className="rounded-xl border border-black/10 p-4 text-sm text-black/55 dark:border-white/10 dark:text-white/55"
         >
-          Loading player profile…
+          Loading player profile...
         </div>
       )}
 
