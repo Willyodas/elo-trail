@@ -136,7 +136,7 @@ export function CompareWorkspace() {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-2">
         <ComparePlayerPicker
           label="Player one"
           player={playerOne}

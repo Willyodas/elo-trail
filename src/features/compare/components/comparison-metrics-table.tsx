@@ -199,7 +199,7 @@ export function ComparisonMetricsTable({
   playerTwo,
 }: ComparisonMetricsTableProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-black/10 bg-white dark:border-white/10 dark:bg-white/[0.03]">
+    <section className="max-w-full min-w-0 overflow-hidden rounded-xl border border-black/10 bg-white dark:border-white/10 dark:bg-white/[0.03]">
       <header className="border-b border-black/10 p-4 dark:border-white/10">
         <h3 className="text-lg font-semibold">Head-to-head analytics</h3>
 
@@ -208,7 +208,11 @@ export function ComparisonMetricsTable({
         </p>
       </header>
 
-      <div className="overflow-x-auto">
+      <div
+        className="max-w-full overflow-x-auto overscroll-x-contain"
+        tabIndex={0}
+        aria-label="Scrollable head-to-head analytics table"
+      >
         <table className="w-full min-w-[42rem] border-collapse text-sm">
           <thead>
             <tr className="border-b border-black/10 bg-black/[0.025] dark:border-white/10 dark:bg-white/[0.025]">

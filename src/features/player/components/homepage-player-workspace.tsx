@@ -60,7 +60,7 @@ export function HomepagePlayerWorkspace() {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="min-w-0 space-y-8 sm:space-y-10">
       <PlayerSearch
         selectedPlayer={selectedPlayer}
         onSelectPlayer={handleSearchPlayerSelect}
@@ -93,7 +93,7 @@ export function HomepagePlayerWorkspace() {
       )}
 
       {selectedPlayer && (
-        <div ref={historyPanelRef} className="scroll-mt-6">
+        <div ref={historyPanelRef} className="min-w-0 scroll-mt-6">
           <PlayerHistoryPanel
             player={selectedPlayer}
             onClose={() => {

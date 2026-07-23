@@ -78,7 +78,7 @@ export function HomepageLeaderboardChart({
 
   if (chartData.length === 0 || ratings.length === 0) {
     return (
-      <div className="flex min-h-96 items-center justify-center rounded-2xl border border-dashed border-black/15 p-8 text-center dark:border-white/15">
+      <div className="flex min-h-72 items-center justify-center rounded-2xl border border-dashed border-black/15 p-6 text-center sm:min-h-96 sm:p-8 dark:border-white/15">
         <div>
           <p className="font-medium">Leaderboard history unavailable</p>
 
@@ -101,7 +101,7 @@ export function HomepageLeaderboardChart({
 
   return (
     <div
-      className="h-[32rem] w-full sm:h-[38rem]"
+      className="h-[30rem] max-w-full min-w-0 sm:h-[38rem]"
       role="img"
       aria-label="Ninety-day matchmaking ELO histories for the top ten players"
     >
@@ -110,9 +110,9 @@ export function HomepageLeaderboardChart({
           data={chartData}
           margin={{
             top: 16,
-            right: 16,
+            right: 4,
             bottom: 12,
-            left: 0,
+            left: -12,
           }}
         >
           <CartesianGrid
@@ -135,7 +135,7 @@ export function HomepageLeaderboardChart({
 
           <YAxis
             domain={[minimumRating - padding, maximumRating + padding]}
-            width={64}
+            width={58}
             tickLine={false}
             axisLine={false}
             fontSize={11}

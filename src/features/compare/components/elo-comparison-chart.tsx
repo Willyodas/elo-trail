@@ -92,7 +92,7 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
   const padding = Math.max(25, Math.round((maximum - minimum) * 0.12));
 
   return (
-    <div>
+    <div className="max-w-full min-w-0">
       {(!firstPlayerHasData || !secondPlayerHasData) && (
         <div
           role="status"
@@ -104,7 +104,7 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
         </div>
       )}
 
-      <div className="h-[24rem] w-full sm:h-[30rem]">
+      <div className="h-[22rem] max-w-full min-w-0 sm:h-[30rem]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
