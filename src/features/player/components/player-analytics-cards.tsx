@@ -174,7 +174,7 @@ export function PlayerAnalyticsCards({ analytics }: PlayerAnalyticsCardsProps) {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {cards.map((card) => {
           const Icon = card.icon;
 
@@ -194,7 +194,7 @@ export function PlayerAnalyticsCards({ analytics }: PlayerAnalyticsCardsProps) {
                 />
               </div>
 
-              <p className="mt-2 truncate text-2xl font-semibold tabular-nums">
+              <p className="mt-2 text-2xl font-semibold break-words tabular-nums">
                 {card.value}
               </p>
             </article>

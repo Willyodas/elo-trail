@@ -56,7 +56,7 @@ function HighlightCard({
         />
       </div>
 
-      <p className="mt-2 truncate text-lg font-semibold">
+      <p className="mt-2 text-lg font-semibold break-words">
         {civilisation
           ? formatCivilisationName(civilisation)
           : "Not enough data"}
@@ -155,7 +155,12 @@ export function CivilisationAnalyticsPanel({
         by games played.
       </p>
 
-      <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/10">
+      <div
+        className="overflow-x-auto rounded-xl border border-black/10 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:outline-none dark:border-white/10 dark:focus-visible:ring-white/50"
+        role="region"
+        aria-label="Civilisation analytics table"
+        tabIndex={0}
+      >
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-black/[0.03] text-xs tracking-wide text-black/50 uppercase dark:bg-white/[0.05] dark:text-white/50">
             <tr>

@@ -63,7 +63,7 @@ function MatchHighlightCard({
         />
       </div>
 
-      <p className="mt-2 truncate text-lg font-semibold">
+      <p className="mt-2 text-lg font-semibold break-words">
         {highlight.name ?? emptyText}
       </p>
 
@@ -94,7 +94,7 @@ function RivalryCard({ highlight }: RivalryCardProps) {
         />
       </div>
 
-      <p className="mt-2 truncate text-lg font-semibold">
+      <p className="mt-2 text-lg font-semibold break-words">
         {highlight.name ?? "No opponent data"}
       </p>
 
@@ -191,7 +191,12 @@ export function OpponentAnalyticsPanel({
         games played.
       </p>
 
-      <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/10">
+      <div
+        className="overflow-x-auto rounded-xl border border-black/10 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:outline-none dark:border-white/10 dark:focus-visible:ring-white/50"
+        role="region"
+        aria-label="Opponent analytics table"
+        tabIndex={0}
+      >
         <table className="w-full min-w-[820px] text-left text-sm">
           <thead className="bg-black/[0.03] text-xs tracking-wide text-black/50 uppercase dark:bg-white/[0.05] dark:text-white/50">
             <tr>
@@ -220,7 +225,9 @@ export function OpponentAnalyticsPanel({
                       aria-hidden="true"
                     />
 
-                    <span className="max-w-56 truncate">{opponent.name}</span>
+                    <span className="max-w-56 break-words">
+                      {opponent.name}
+                    </span>
                   </div>
                 </td>
 

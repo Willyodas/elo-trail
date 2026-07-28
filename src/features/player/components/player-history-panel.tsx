@@ -123,9 +123,9 @@ export function PlayerHistoryPanel({
   );
 
   return (
-    <section className="space-y-6 rounded-2xl border border-black/10 bg-black/[0.02] p-4 sm:p-6 dark:border-white/10 dark:bg-white/[0.03]">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-        <div>
+    <section className="min-w-0 space-y-6 rounded-2xl border border-black/10 bg-black/[0.02] p-4 sm:p-6 dark:border-white/10 dark:bg-white/[0.03]">
+      <header className="flex min-w-0 flex-col justify-between gap-3 sm:flex-row sm:items-start sm:gap-4">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Swords className="size-5" aria-hidden="true" />
 
@@ -134,7 +134,7 @@ export function PlayerHistoryPanel({
             </p>
           </div>
 
-          <h2 className="mt-2 text-3xl font-bold tracking-tight">
+          <h2 className="mt-2 text-2xl font-bold tracking-tight break-words sm:text-3xl">
             {player.name}
           </h2>
 
@@ -157,7 +157,7 @@ export function PlayerHistoryPanel({
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex size-10 shrink-0 items-center justify-center self-end rounded-lg border border-black/10 transition-colors hover:bg-black/5 sm:self-auto dark:border-white/10 dark:hover:bg-white/10"
+          className="inline-flex size-11 shrink-0 items-center justify-center self-end rounded-lg border border-black/10 transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:outline-none sm:self-auto dark:border-white/10 dark:hover:bg-white/10 dark:focus-visible:ring-white/50"
           aria-label={`Close ${player.name} history`}
         >
           <X className="size-4" aria-hidden="true" />
@@ -211,7 +211,7 @@ export function PlayerHistoryPanel({
 
           <PlayerAnalyticsCards analytics={analytics} />
 
-          <div className="rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/10 dark:bg-black/10">
+          <div className="min-w-0 overflow-hidden rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/10 dark:bg-black/10">
             <EloHistoryChart points={filteredPoints} />
           </div>
 
@@ -242,10 +242,10 @@ export function PlayerHistoryPanel({
                     .map((match) => (
                       <article
                         key={match.gameId}
-                        className="flex flex-col justify-between gap-3 bg-white p-4 sm:flex-row sm:items-center dark:bg-white/[0.03]"
+                        className="flex min-w-0 flex-col justify-between gap-3 bg-white p-4 sm:flex-row sm:items-center dark:bg-white/[0.03]"
                       >
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="min-w-0">
+                          <div className="flex min-w-0 flex-wrap items-center gap-2">
                             <span
                               className={[
                                 "rounded-full px-2 py-0.5 text-xs font-semibold uppercase",
@@ -259,7 +259,7 @@ export function PlayerHistoryPanel({
                               {match.result}
                             </span>
 
-                            <span className="font-medium">
+                            <span className="min-w-0 font-medium break-words">
                               {match.opponentName
                                 ? `vs ${match.opponentName}`
                                 : "Opponent unavailable"}

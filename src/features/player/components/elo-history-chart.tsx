@@ -55,7 +55,7 @@ function ChartTooltip({ active, payload }: ChartTooltipProps) {
   const ratingBefore = point.rating - point.ratingChange;
 
   return (
-    <div className="min-w-52 rounded-xl border border-black/10 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-neutral-950">
+    <div className="w-[min(13rem,calc(100vw-2rem))] rounded-xl border border-black/10 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-neutral-950">
       <p className="text-xs font-medium tracking-wide text-black/45 uppercase dark:text-white/45">
         Matchmaking ELO
       </p>
@@ -141,8 +141,8 @@ export function EloHistoryChart({ points }: EloHistoryChartProps) {
     (zoomRange.startIndex > 0 || zoomRange.endIndex < sortedPoints.length - 1);
 
   return (
-    <div className="space-y-3">
-      <div className="flex min-h-8 items-center justify-between gap-3">
+    <div className="min-w-0 space-y-3">
+      <div className="flex min-h-8 flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-3">
         <p className="text-xs text-black/45 dark:text-white/45">
           Drag the lower timeline handles to zoom.
         </p>
@@ -151,7 +151,7 @@ export function EloHistoryChart({ points }: EloHistoryChartProps) {
           <button
             type="button"
             onClick={() => setZoomRange(null)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-black/10 px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-black/10 px-3 py-2 text-xs font-medium transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:outline-none dark:border-white/10 dark:hover:bg-white/10 dark:focus-visible:ring-white/50"
           >
             <RotateCcw className="size-3.5" aria-hidden="true" />
             Reset zoom
@@ -160,7 +160,7 @@ export function EloHistoryChart({ points }: EloHistoryChartProps) {
       </div>
 
       <div
-        className="h-[28rem] w-full"
+        className="h-[22rem] w-full min-w-0 overflow-hidden sm:h-[28rem]"
         role="img"
         aria-label="Matchmaking ELO timeline with peak, lowest, average and starting rating markers"
       >
