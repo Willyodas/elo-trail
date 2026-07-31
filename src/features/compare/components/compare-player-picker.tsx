@@ -74,22 +74,35 @@ export function ComparePlayerPicker({
       </div>
 
       <div className="relative mt-4">
+        <label
+          htmlFor={`compare-player-search-${label.replaceAll(" ", "-").toLowerCase()}`}
+          className="sr-only"
+        >
+          Search for {label.toLowerCase()}
+        </label>
+
         <Search
           className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-black/40 dark:text-white/40"
           aria-hidden="true"
         />
 
         <input
+          id={`compare-player-search-${label.replaceAll(" ", "-").toLowerCase()}`}
+          type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search players"
-          aria-label={`${label} search`}
+          aria-expanded={results.length > 0}
           className="w-full rounded-lg border border-black/10 bg-black/[0.02] py-2.5 pr-3 pl-10 text-sm transition outline-none focus:border-black/30 focus:ring-4 focus:ring-black/5 dark:border-white/10 dark:bg-white/5 dark:focus:border-white/30"
         />
       </div>
 
       {isLoading && (
-        <p className="mt-3 text-sm text-black/50 dark:text-white/50">
+        <p
+          role="status"
+          aria-live="polite"
+          className="mt-3 text-sm text-black/50 dark:text-white/50"
+        >
           Searching…
         </p>
       )}

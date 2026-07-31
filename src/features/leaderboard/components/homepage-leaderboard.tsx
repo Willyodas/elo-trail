@@ -64,7 +64,10 @@ export function HomepageLeaderboard({
         className="flex min-h-48 items-center justify-center rounded-2xl border border-black/10 p-6 dark:border-white/10"
       >
         <div className="flex items-center gap-3 text-sm text-black/55 dark:text-white/55">
-          <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+          <LoaderCircle
+            className="size-5 animate-spin motion-reduce:animate-none"
+            aria-hidden="true"
+          />
           Loading daily leaderboard…
         </div>
       </section>

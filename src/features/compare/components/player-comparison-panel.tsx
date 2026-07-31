@@ -328,7 +328,10 @@ export function PlayerComparisonPanel({
           className="flex min-h-72 items-center justify-center sm:min-h-96"
         >
           <div className="flex flex-col items-center gap-3 text-center text-black/55 sm:flex-row sm:text-left dark:text-white/55">
-            <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+            <LoaderCircle
+              className="size-5 animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
             Loading both ELO histories…
           </div>
         </div>

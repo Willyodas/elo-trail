@@ -237,7 +237,7 @@ export function CivilisationAnalyticsPanel({
             type="button"
             onClick={() => setShowAll((current) => !current)}
             aria-expanded={showAll}
-            className="inline-flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:outline-none dark:border-white/10 dark:hover:bg-white/10 dark:focus-visible:ring-white/50"
           >
             {showAll ? (
               <>

@@ -79,14 +79,19 @@ export function PlayerSearch({
           aria-hidden="true"
         />
 
+        <label htmlFor="player-search-input" className="sr-only">
+          Search Age of Empires IV players
+        </label>
+
         <input
+          id="player-search-input"
           type="search"
           value={query}
           onChange={(event) => handleQueryChange(event.target.value)}
           onFocus={handleSearchFocus}
           placeholder="Search Age of Empires IV players"
-          aria-label="Search players"
           aria-describedby="player-search-help"
+          aria-expanded={isResultsOpen && trimmedQuery.length >= 3}
           aria-controls="player-search-results"
           autoComplete="off"
           maxLength={50}

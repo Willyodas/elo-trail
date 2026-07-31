@@ -167,7 +167,10 @@ export function PlayerHistoryPanel({
       {isLoading ? (
         <div className="flex min-h-96 items-center justify-center">
           <div className="flex items-center gap-3 text-black/60 dark:text-white/60">
-            <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+            <LoaderCircle
+              className="size-5 animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
 
             <span>Loading matchmaking ELO history…</span>
           </div>
