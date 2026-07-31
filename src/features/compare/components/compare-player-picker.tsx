@@ -35,16 +35,18 @@ export function ComparePlayerPicker({
   }
 
   return (
-    <section className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
-      <div className="flex items-center justify-between gap-3">
-        <div>
+    <section className="min-w-0 rounded-2xl border border-black/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0">
           <p className="text-sm font-medium text-black/50 dark:text-white/50">
             {label}
           </p>
 
           {player ? (
             <div className="mt-1">
-              <h2 className="text-xl font-semibold">{player.name}</h2>
+              <h2 className="text-xl font-semibold break-words">
+                {player.name}
+              </h2>
 
               <p className="text-sm text-black/55 dark:text-white/55">
                 Profile #{player.profile_id.toLocaleString()}
@@ -63,7 +65,7 @@ export function ComparePlayerPicker({
           <button
             type="button"
             onClick={onClear}
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-black/10 transition hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-black/10 transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none dark:border-white/10 dark:hover:bg-white/10 dark:focus-visible:ring-white/40"
             aria-label={`Remove ${player.name}`}
           >
             <X className="size-4" aria-hidden="true" />
@@ -115,10 +117,10 @@ export function ComparePlayerPicker({
                   key={result.profile_id}
                   type="button"
                   onClick={() => handleSelect(result)}
-                  className="flex w-full items-center justify-between gap-4 p-3 text-left transition hover:bg-black/5 dark:hover:bg-white/5"
+                  className="flex min-h-11 w-full min-w-0 items-center justify-between gap-3 p-3 text-left transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none focus-visible:ring-inset dark:hover:bg-white/5 dark:focus-visible:ring-white/40"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{result.name}</p>
+                    <p className="font-medium break-words">{result.name}</p>
 
                     <p className="text-xs text-black/50 dark:text-white/50">
                       Profile #{result.profile_id}

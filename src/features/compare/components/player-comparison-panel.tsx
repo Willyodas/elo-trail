@@ -55,10 +55,25 @@ function filterMatches(matches: MatchSummary[], range: HistoryRange) {
   return matches.filter((match) => new Date(match.startedAt) >= start);
 }
 
-function getCurrentElo(player: Aoe4WorldPlayer) {
-  const rating = player.leaderboards?.rm_1v1_elo?.rating;
+function getCurrentElo(
+  player: Aoe4WorldPlayer,
+  historyCurrentRating: number | null | undefined,
+) {
+  const profileRating = player.leaderboards?.rm_1v1_elo?.rating;
 
-  return typeof rating === "number" ? rating : null;
+  if (
+    typeof profileRating === "number" &&
+    Number.isFinite(profileRating) &&
+    profileRating > 0
+  ) {
+    return profileRating;
+  }
+
+  return typeof historyCurrentRating === "number" &&
+    Number.isFinite(historyCurrentRating) &&
+    historyCurrentRating > 0
+    ? historyCurrentRating
+    : null;
 }
 
 function formatElo(value: number | null) {
@@ -94,9 +109,15 @@ export function PlayerComparisonPanel({
     days: 180,
   });
 
-  const playerOneCurrentElo = getCurrentElo(playerOne);
+  const playerOneCurrentElo = getCurrentElo(
+    playerOne,
+    playerOneHistory.data?.statistics.currentRating,
+  );
 
-  const playerTwoCurrentElo = getCurrentElo(playerTwo);
+  const playerTwoCurrentElo = getCurrentElo(
+    playerTwo,
+    playerTwoHistory.data?.statistics.currentRating,
+  );
 
   const playerOnePoints = useMemo(
     () => filterPoints(playerOneHistory.data?.points ?? [], range),
@@ -178,13 +199,15 @@ export function PlayerComparisonPanel({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <HistoryRangeSelector value={range} onChange={setRange} />
+        <div className="grid w-full min-w-0 grid-cols-2 gap-3 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
+          <div className="col-span-2 min-w-0 sm:col-span-1">
+            <HistoryRangeSelector value={range} onChange={setRange} />
+          </div>
 
           <button
             type="button"
             onClick={onSwap}
-            className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm font-medium transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:focus-visible:ring-white/40"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm font-medium transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:focus-visible:ring-white/40"
           >
             <ArrowRightLeft className="size-4" aria-hidden="true" />
             Swap
@@ -193,7 +216,7 @@ export function PlayerComparisonPanel({
           <button
             type="button"
             onClick={() => void copyComparisonLink()}
-            className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm font-medium transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:focus-visible:ring-white/40"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm font-medium transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:focus-visible:ring-white/40"
           >
             {copied ? (
               <Check className="size-4" aria-hidden="true" />
@@ -212,7 +235,7 @@ export function PlayerComparisonPanel({
 
       <div className="grid gap-3 md:grid-cols-3">
         <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-          <p className="truncate text-sm text-black/50 dark:text-white/50">
+          <p className="text-sm break-words text-black/50 dark:text-white/50">
             {playerOne.name}
           </p>
 
@@ -258,7 +281,7 @@ export function PlayerComparisonPanel({
             </p>
           </div>
 
-          <p className="text-sm text-black/45 dark:text-white/45">
+          <p className="text-sm break-words text-black/45 dark:text-white/45">
             {difference === null
               ? "Difference unavailable"
               : difference === 0
@@ -270,7 +293,7 @@ export function PlayerComparisonPanel({
         </div>
 
         <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-          <p className="truncate text-sm text-black/50 dark:text-white/50">
+          <p className="text-sm break-words text-black/50 dark:text-white/50">
             {playerTwo.name}
           </p>
 
@@ -302,9 +325,9 @@ export function PlayerComparisonPanel({
         <div
           role="status"
           aria-live="polite"
-          className="flex min-h-96 items-center justify-center"
+          className="flex min-h-72 items-center justify-center sm:min-h-96"
         >
-          <div className="flex items-center gap-3 text-black/55 dark:text-white/55">
+          <div className="flex flex-col items-center gap-3 text-center text-black/55 sm:flex-row sm:text-left dark:text-white/55">
             <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
             Loading both ELO histories…
           </div>

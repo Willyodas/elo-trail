@@ -67,8 +67,12 @@ export function CompareWorkspace() {
     }
 
     const animationFrame = window.requestAnimationFrame(() => {
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
       comparisonRef.current?.scrollIntoView({
-        behavior: "smooth",
+        behavior: prefersReducedMotion ? "auto" : "smooth",
         block: "start",
       });
     });
@@ -135,7 +139,7 @@ export function CompareWorkspace() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="min-w-0 space-y-8">
       <div className="grid min-w-0 gap-4 lg:grid-cols-2">
         <ComparePlayerPicker
           label="Player one"
@@ -179,7 +183,7 @@ export function CompareWorkspace() {
       )}
 
       {!isRestoringSharedPlayers && (!playerOne || !playerTwo) && (
-        <div className="rounded-2xl border border-dashed border-black/15 p-10 text-center dark:border-white/15">
+        <div className="rounded-2xl border border-dashed border-black/15 p-6 text-center sm:p-10 dark:border-white/15">
           <h2 className="text-xl font-semibold">Select two players</h2>
 
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-black/55 dark:text-white/55">

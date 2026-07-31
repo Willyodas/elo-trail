@@ -209,7 +209,7 @@ export function ComparisonMetricsTable({
       </header>
 
       <div
-        className="max-w-full overflow-x-auto overscroll-x-contain"
+        className="max-w-full overflow-x-auto overscroll-x-contain focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none focus-visible:ring-inset dark:focus-visible:ring-white/40"
         tabIndex={0}
         aria-label="Scrollable head-to-head analytics table"
       >
@@ -220,11 +220,11 @@ export function ComparisonMetricsTable({
                 Metric
               </th>
 
-              <th className="px-4 py-3 text-right font-semibold">
+              <th className="max-w-52 px-4 py-3 text-right font-semibold break-words">
                 {playerOneName}
               </th>
 
-              <th className="px-4 py-3 text-right font-semibold">
+              <th className="max-w-52 px-4 py-3 text-right font-semibold break-words">
                 {playerTwoName}
               </th>
             </tr>

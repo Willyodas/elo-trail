@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function ComparePage() {
   return (
-    <main className="min-h-screen px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <main className="min-h-screen min-w-0 overflow-x-clip px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
       <div className="mx-auto w-full max-w-7xl space-y-8 sm:space-y-10">
         <header className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-3xl min-w-0">

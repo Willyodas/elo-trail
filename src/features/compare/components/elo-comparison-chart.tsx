@@ -3,7 +3,6 @@
 import { format } from "date-fns";
 import {
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -104,7 +103,30 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
         </div>
       )}
 
-      <div className="h-[22rem] max-w-full min-w-0 sm:h-[30rem]">
+      <div
+        className="mb-3 grid min-w-0 gap-2 text-sm sm:grid-cols-2"
+        aria-label="Chart series"
+      >
+        <div className="flex min-w-0 items-start gap-2">
+          <span
+            className="mt-2 h-0.5 w-5 shrink-0 bg-blue-600"
+            aria-hidden="true"
+          />
+          <span className="min-w-0 break-words">{players[0].name}</span>
+        </div>
+
+        <div className="flex min-w-0 items-start gap-2 sm:justify-end">
+          <span
+            className="mt-2 h-0.5 w-5 shrink-0 bg-red-600"
+            aria-hidden="true"
+          />
+          <span className="min-w-0 break-words sm:text-right">
+            {players[1].name}
+          </span>
+        </div>
+      </div>
+
+      <div className="h-[20rem] max-w-full min-w-0 overflow-hidden sm:h-[30rem]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
@@ -149,12 +171,6 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
                 `${Number(value).toLocaleString()} ELO`,
                 String(name),
               ]}
-            />
-
-            <Legend
-              wrapperStyle={{
-                paddingTop: 12,
-              }}
             />
 
             <Line
