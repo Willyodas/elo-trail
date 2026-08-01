@@ -76,7 +76,10 @@ export function HomepageLeaderboard({
 
   if (error || !data) {
     return (
-      <section className="rounded-2xl border border-dashed border-black/15 p-6 text-center sm:p-8 dark:border-white/15">
+      <section
+        role="alert"
+        className="rounded-2xl border border-dashed border-black/15 p-6 text-center sm:p-8 dark:border-white/15"
+      >
         <h2 className="font-semibold">Daily leaderboard unavailable</h2>
 
         <p className="mt-1 text-sm leading-6 text-black/55 dark:text-white/55">

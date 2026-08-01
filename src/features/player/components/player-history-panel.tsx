@@ -123,7 +123,10 @@ export function PlayerHistoryPanel({
   );
 
   return (
-    <section className="min-w-0 space-y-6 rounded-2xl border border-black/10 bg-black/[0.02] p-4 sm:p-6 dark:border-white/10 dark:bg-white/[0.03]">
+    <section
+      aria-labelledby="player-history-heading"
+      className="min-w-0 space-y-6 rounded-2xl border border-black/10 bg-black/[0.02] p-4 sm:p-6 dark:border-white/10 dark:bg-white/[0.03]"
+    >
       <header className="flex min-w-0 flex-col justify-between gap-3 sm:flex-row sm:items-start sm:gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -134,7 +137,10 @@ export function PlayerHistoryPanel({
             </p>
           </div>
 
-          <h2 className="mt-2 text-2xl font-bold tracking-tight break-words sm:text-3xl">
+          <h2
+            id="player-history-heading"
+            className="mt-2 text-2xl font-bold tracking-tight break-words sm:text-3xl"
+          >
             {player.name}
           </h2>
 
@@ -165,7 +171,11 @@ export function PlayerHistoryPanel({
       </header>
 
       {isLoading ? (
-        <div className="flex min-h-96 items-center justify-center">
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex min-h-96 items-center justify-center"
+        >
           <div className="flex items-center gap-3 text-black/60 dark:text-white/60">
             <LoaderCircle
               className="size-5 animate-spin motion-reduce:animate-none"
@@ -176,7 +186,10 @@ export function PlayerHistoryPanel({
           </div>
         </div>
       ) : error ? (
-        <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed border-red-500/30 p-6 text-center">
+        <div
+          role="alert"
+          className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed border-red-500/30 p-6 text-center"
+        >
           <AlertCircle className="size-8 text-red-500" aria-hidden="true" />
 
           <h3 className="mt-3 font-semibold">
@@ -190,7 +203,7 @@ export function PlayerHistoryPanel({
           <button
             type="button"
             onClick={() => void refetch()}
-            className="mt-4 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-black"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 focus-visible:outline-none dark:bg-white dark:text-black dark:focus-visible:ring-white/50"
           >
             Try again
           </button>

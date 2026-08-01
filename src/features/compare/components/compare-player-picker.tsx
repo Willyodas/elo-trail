@@ -23,6 +23,9 @@ export function ComparePlayerPicker({
 }: ComparePlayerPickerProps) {
   const [query, setQuery] = useState("");
 
+  const inputId = `compare-player-search-${label.replaceAll(" ", "-").toLowerCase()}`;
+  const resultsId = `${inputId}-results`;
+
   const { data, isLoading, error } = usePlayerSearch(query);
 
   const results = (data ?? [])
@@ -74,10 +77,7 @@ export function ComparePlayerPicker({
       </div>
 
       <div className="relative mt-4">
-        <label
-          htmlFor={`compare-player-search-${label.replaceAll(" ", "-").toLowerCase()}`}
-          className="sr-only"
-        >
+        <label htmlFor={inputId} className="sr-only">
           Search for {label.toLowerCase()}
         </label>
 
@@ -87,76 +87,85 @@ export function ComparePlayerPicker({
         />
 
         <input
-          id={`compare-player-search-${label.replaceAll(" ", "-").toLowerCase()}`}
+          id={inputId}
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search players"
           aria-expanded={results.length > 0}
+          aria-controls={resultsId}
           className="w-full rounded-lg border border-black/10 bg-black/[0.02] py-2.5 pr-3 pl-10 text-sm transition outline-none focus:border-black/30 focus:ring-4 focus:ring-black/5 dark:border-white/10 dark:bg-white/5 dark:focus:border-white/30"
         />
       </div>
 
-      {isLoading && (
-        <p
-          role="status"
-          aria-live="polite"
-          className="mt-3 text-sm text-black/50 dark:text-white/50"
-        >
-          Searching…
-        </p>
-      )}
+      <div id={resultsId} aria-live="polite">
+        {isLoading && (
+          <p
+            role="status"
+            className="mt-3 text-sm text-black/50 dark:text-white/50"
+          >
+            Searching…
+          </p>
+        )}
 
-      {error && (
-        <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">
-          Player search failed.
-        </p>
-      )}
+        {error && (
+          <p
+            role="alert"
+            className="mt-3 text-sm text-red-600 dark:text-red-400"
+          >
+            Player search failed.
+          </p>
+        )}
 
-      {query.trim().length >= 2 && !isLoading && results.length === 0 && (
-        <p className="mt-3 text-sm text-black/50 dark:text-white/50">
-          No matching players found.
-        </p>
-      )}
+        {query.trim().length >= 2 && !isLoading && results.length === 0 && (
+          <p className="mt-3 text-sm text-black/50 dark:text-white/50">
+            No matching players found.
+          </p>
+        )}
 
-      {results.length > 0 && (
-        <div className="mt-3 max-h-80 overflow-y-auto rounded-lg border border-black/10 dark:border-white/10">
-          <div className="divide-y divide-black/10 dark:divide-white/10">
-            {results.map((result) => {
-              const matchmakingElo = result.leaderboards?.rm_1v1_elo?.rating;
+        {results.length > 0 && (
+          <div
+            role="region"
+            aria-label={`${label} search results`}
+            className="mt-3 max-h-80 overflow-y-auto rounded-lg border border-black/10 dark:border-white/10"
+          >
+            <div className="divide-y divide-black/10 dark:divide-white/10">
+              {results.map((result) => {
+                const matchmakingElo = result.leaderboards?.rm_1v1_elo?.rating;
 
-              return (
-                <button
-                  key={result.profile_id}
-                  type="button"
-                  onClick={() => handleSelect(result)}
-                  className="flex min-h-11 w-full min-w-0 items-center justify-between gap-3 p-3 text-left transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none focus-visible:ring-inset dark:hover:bg-white/5 dark:focus-visible:ring-white/40"
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium break-words">{result.name}</p>
+                return (
+                  <button
+                    key={result.profile_id}
+                    type="button"
+                    onClick={() => handleSelect(result)}
+                    className="flex min-h-11 w-full min-w-0 items-center justify-between gap-3 p-3 text-left transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:outline-none focus-visible:ring-inset dark:hover:bg-white/5 dark:focus-visible:ring-white/40"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium break-words">{result.name}</p>
 
-                    <p className="text-xs text-black/50 dark:text-white/50">
-                      Profile #{result.profile_id}
-                    </p>
-                  </div>
+                      <p className="text-xs text-black/50 dark:text-white/50">
+                        Profile #{result.profile_id}
+                      </p>
+                    </div>
 
-                  <div className="shrink-0 text-right">
-                    <p className="font-semibold">
-                      {typeof matchmakingElo === "number"
-                        ? matchmakingElo.toLocaleString()
-                        : "—"}
-                    </p>
+                    <div className="shrink-0 text-right">
+                      <p className="font-semibold">
+                        {typeof matchmakingElo === "number"
+                          ? matchmakingElo.toLocaleString()
+                          : "—"}
+                      </p>
 
-                    <p className="text-xs text-black/45 dark:text-white/45">
-                      ELO
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
+                      <p className="text-xs text-black/45 dark:text-white/45">
+                        ELO
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }

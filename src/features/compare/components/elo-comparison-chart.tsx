@@ -132,25 +132,23 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
 
       <div
         className="mb-3 grid min-w-0 gap-2 text-sm sm:grid-cols-2"
-        aria-label="Chart series and line patterns"
+        aria-label="Chart series"
       >
         <div className="flex min-w-0 items-start gap-2">
           <span
             className="mt-2 h-0.5 w-5 shrink-0 bg-blue-600"
             aria-hidden="true"
           />
-          <span className="min-w-0 break-words">
-            {players[0].name} — solid line
-          </span>
+          <span className="min-w-0 break-words">{players[0].name}</span>
         </div>
 
         <div className="flex min-w-0 items-start gap-2 sm:justify-end">
           <span
-            className="mt-2 w-5 shrink-0 border-t-2 border-dashed border-red-600"
+            className="mt-2 h-0.5 w-5 shrink-0 bg-red-600"
             aria-hidden="true"
           />
           <span className="min-w-0 break-words sm:text-right">
-            {players[1].name} — dashed line
+            {players[1].name}
           </span>
         </div>
       </div>
@@ -226,7 +224,6 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
               name={players[1].name}
               stroke="#dc2626"
               strokeWidth={2.5}
-              strokeDasharray="8 5"
               dot={false}
               activeDot={{
                 r: 5,
