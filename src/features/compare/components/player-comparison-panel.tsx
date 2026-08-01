@@ -181,14 +181,20 @@ export function PlayerComparisonPanel({
   }
 
   return (
-    <section className="max-w-full min-w-0 space-y-6 rounded-2xl border border-black/10 bg-black/[0.02] p-4 sm:p-6 dark:border-white/10 dark:bg-white/[0.03]">
+    <section
+      aria-labelledby="comparison-heading"
+      className="max-w-full min-w-0 space-y-6 rounded-2xl border border-black/10 bg-black/[0.02] p-4 sm:p-6 dark:border-white/10 dark:bg-white/[0.03]"
+    >
       <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div className="min-w-0">
           <p className="text-sm font-semibold tracking-[0.16em] text-black/45 uppercase dark:text-white/45">
             Matchmaking ELO comparison
           </p>
 
-          <h2 className="mt-2 text-2xl font-bold tracking-tight break-words sm:text-3xl">
+          <h2
+            id="comparison-heading"
+            className="mt-2 text-2xl font-bold tracking-tight break-words sm:text-3xl"
+          >
             {playerOne.name} vs {playerTwo.name}
           </h2>
 
