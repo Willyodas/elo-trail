@@ -140,8 +140,32 @@ export function EloHistoryChart({ points }: EloHistoryChartProps) {
     zoomRange !== null &&
     (zoomRange.startIndex > 0 || zoomRange.endIndex < sortedPoints.length - 1);
 
+  const firstPoint = sortedPoints[0];
+  const lastPoint = sortedPoints[sortedPoints.length - 1];
+
+  const chartDescription = [
+    `Matchmaking ELO timeline containing ${sortedPoints.length.toLocaleString()} rating points.`,
+    firstPoint && lastPoint
+      ? `The displayed period starts at ${firstPoint.rating.toLocaleString()} ELO and ends at ${lastPoint.rating.toLocaleString()} ELO.`
+      : null,
+    summary.peakPoint
+      ? `Peak ELO is ${summary.peakPoint.rating.toLocaleString()} on ${format(new Date(summary.peakPoint.timestamp), "d MMM yyyy")}.`
+      : null,
+    summary.lowestPoint
+      ? `Lowest ELO is ${summary.lowestPoint.rating.toLocaleString()} on ${format(new Date(summary.lowestPoint.timestamp), "d MMM yyyy")}.`
+      : null,
+    summary.averageElo !== null
+      ? `Average ELO is ${Math.round(summary.averageElo).toLocaleString()}.`
+      : null,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join(" ");
+
   return (
     <div className="min-w-0 space-y-3">
+      <p id="elo-history-chart-description" className="sr-only">
+        {chartDescription}
+      </p>
       <div className="flex min-h-8 flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-3">
         <p className="text-xs text-black/45 dark:text-white/45">
           Drag the lower timeline handles to zoom.
@@ -162,7 +186,8 @@ export function EloHistoryChart({ points }: EloHistoryChartProps) {
       <div
         className="h-[22rem] w-full min-w-0 overflow-hidden sm:h-[28rem]"
         role="img"
-        aria-label="Matchmaking ELO timeline with peak, lowest, average and starting rating markers"
+        aria-label="Matchmaking ELO timeline"
+        aria-describedby="elo-history-chart-description"
       >
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart

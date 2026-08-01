@@ -90,8 +90,35 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
 
   const padding = Math.max(25, Math.round((maximum - minimum) * 0.12));
 
+  const describePlayer = (player: ComparisonPlayerSeries) => {
+    if (player.points.length === 0) {
+      return `${player.name} has no matchmaking ELO history in this period.`;
+    }
+
+    const orderedPoints = [...player.points].sort(
+      (left, right) =>
+        new Date(left.timestamp).getTime() -
+        new Date(right.timestamp).getTime(),
+    );
+
+    const firstPoint = orderedPoints[0]!;
+    const lastPoint = orderedPoints[orderedPoints.length - 1]!;
+    const change = lastPoint.rating - firstPoint.rating;
+    const changeDescription =
+      change === 0
+        ? "no overall change"
+        : `${Math.abs(change).toLocaleString()} ELO ${change > 0 ? "gain" : "loss"}`;
+
+    return `${player.name} starts at ${firstPoint.rating.toLocaleString()} ELO and ends at ${lastPoint.rating.toLocaleString()} ELO, a ${changeDescription}, across ${orderedPoints.length.toLocaleString()} rating points.`;
+  };
+
+  const chartDescription = `${describePlayer(players[0])} ${describePlayer(players[1])}`;
+
   return (
     <div className="max-w-full min-w-0">
+      <p id="elo-comparison-chart-description" className="sr-only">
+        {chartDescription}
+      </p>
       {(!firstPlayerHasData || !secondPlayerHasData) && (
         <div
           role="status"
@@ -105,28 +132,35 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
 
       <div
         className="mb-3 grid min-w-0 gap-2 text-sm sm:grid-cols-2"
-        aria-label="Chart series"
+        aria-label="Chart series and line patterns"
       >
         <div className="flex min-w-0 items-start gap-2">
           <span
             className="mt-2 h-0.5 w-5 shrink-0 bg-blue-600"
             aria-hidden="true"
           />
-          <span className="min-w-0 break-words">{players[0].name}</span>
+          <span className="min-w-0 break-words">
+            {players[0].name} — solid line
+          </span>
         </div>
 
         <div className="flex min-w-0 items-start gap-2 sm:justify-end">
           <span
-            className="mt-2 h-0.5 w-5 shrink-0 bg-red-600"
+            className="mt-2 w-5 shrink-0 border-t-2 border-dashed border-red-600"
             aria-hidden="true"
           />
           <span className="min-w-0 break-words sm:text-right">
-            {players[1].name}
+            {players[1].name} — dashed line
           </span>
         </div>
       </div>
 
-      <div className="h-[20rem] max-w-full min-w-0 overflow-hidden sm:h-[30rem]">
+      <div
+        className="h-[20rem] max-w-full min-w-0 overflow-hidden sm:h-[30rem]"
+        role="img"
+        aria-label="Two-player matchmaking ELO comparison chart"
+        aria-describedby="elo-comparison-chart-description"
+      >
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
@@ -192,6 +226,7 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
               name={players[1].name}
               stroke="#dc2626"
               strokeWidth={2.5}
+              strokeDasharray="8 5"
               dot={false}
               activeDot={{
                 r: 5,
