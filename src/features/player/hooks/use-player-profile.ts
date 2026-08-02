@@ -3,6 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import type { Aoe4WorldPlayer } from "@/services/aoe4world";
 import type { ApiResponse } from "@/types/api";
 
+export function playerProfileQueryKey(playerId: number) {
+  return ["player-profile", playerId] as const;
+}
+
 async function fetchPlayerProfile(playerId: number): Promise<Aoe4WorldPlayer> {
   const response = await fetch(`/api/players/${playerId}`, {
     headers: {
@@ -30,7 +34,7 @@ export function usePlayerProfile(playerId: number | null | undefined) {
     typeof playerId === "number" && Number.isInteger(playerId) && playerId > 0;
 
   return useQuery({
-    queryKey: ["player-profile", playerId],
+    queryKey: playerProfileQueryKey(playerId as number),
 
     queryFn: () => fetchPlayerProfile(playerId as number),
 

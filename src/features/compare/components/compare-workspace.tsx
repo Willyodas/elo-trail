@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { usePlayerProfile } from "@/features/player";
+import { playerProfileQueryKey, usePlayerProfile } from "@/features/player";
 import type { Aoe4WorldPlayer } from "@/services/aoe4world";
 
 import { ComparePlayerPicker } from "./compare-player-picker";
@@ -22,6 +23,7 @@ function parseProfileId(value: string | null) {
 }
 
 export function CompareWorkspace() {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -110,11 +112,13 @@ export function CompareWorkspace() {
   }
 
   function selectPlayerOne(player: Aoe4WorldPlayer) {
+    queryClient.setQueryData(playerProfileQueryKey(player.profile_id), player);
     setSelectedPlayerOne(player);
     updateUrl(player.profile_id, playerTwoId);
   }
 
   function selectPlayerTwo(player: Aoe4WorldPlayer) {
+    queryClient.setQueryData(playerProfileQueryKey(player.profile_id), player);
     setSelectedPlayerTwo(player);
     updateUrl(playerOneId, player.profile_id);
   }
