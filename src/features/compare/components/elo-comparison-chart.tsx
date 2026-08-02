@@ -1,6 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -60,7 +61,15 @@ function buildChartData(
 }
 
 export function EloComparisonChart({ players }: EloComparisonChartProps) {
-  const data = buildChartData(players);
+  const data = useMemo(
+    () => buildChartData(players),
+    [
+      players[0].profileId,
+      players[0].points,
+      players[1].profileId,
+      players[1].points,
+    ],
+  );
 
   const firstPlayerHasData = players[0].points.length > 0;
 

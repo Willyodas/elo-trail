@@ -1,6 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   Line,
@@ -71,14 +72,22 @@ function buildChartData(players: HomepageLeaderboardPlayer[]): ChartRow[] {
 export function HomepageLeaderboardChart({
   players,
 }: HomepageLeaderboardChartProps) {
-  const orderedPlayers = [...players].sort(
-    (left, right) => left.rank - right.rank,
+  const orderedPlayers = useMemo(
+    () => [...players].sort((left, right) => left.rank - right.rank),
+    [players],
   );
 
-  const chartData = buildChartData(orderedPlayers);
+  const chartData = useMemo(
+    () => buildChartData(orderedPlayers),
+    [orderedPlayers],
+  );
 
-  const ratings = orderedPlayers.flatMap((player) =>
-    player.points.map((point) => point.rating),
+  const ratings = useMemo(
+    () =>
+      orderedPlayers.flatMap((player) =>
+        player.points.map((point) => point.rating),
+      ),
+    [orderedPlayers],
   );
 
   if (chartData.length === 0 || ratings.length === 0) {
