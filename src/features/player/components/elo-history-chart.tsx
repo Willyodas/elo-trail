@@ -136,6 +136,27 @@ export function EloHistoryChart({ points }: EloHistoryChartProps) {
     );
   }
 
+  const chartSummary = [
+    `${sortedPoints.length.toLocaleString()} rating points are shown.`,
+    summary.startingElo === null
+      ? null
+      : `The starting matchmaking ELO was ${Math.round(summary.startingElo).toLocaleString()}.`,
+    sortedPoints.at(-1)
+      ? `The ending matchmaking ELO was ${sortedPoints.at(-1)?.rating.toLocaleString()}.`
+      : null,
+    summary.peakPoint
+      ? `The peak was ${summary.peakPoint.rating.toLocaleString()} on ${format(new Date(summary.peakPoint.timestamp), "d MMM yyyy")}.`
+      : null,
+    summary.lowestPoint
+      ? `The lowest was ${summary.lowestPoint.rating.toLocaleString()} on ${format(new Date(summary.lowestPoint.timestamp), "d MMM yyyy")}.`
+      : null,
+    summary.averageElo === null
+      ? null
+      : `The average was ${Math.round(summary.averageElo).toLocaleString()} ELO.`,
+  ]
+    .filter((value): value is string => value !== null)
+    .join(" ");
+
   const hasZoom =
     zoomRange !== null &&
     (zoomRange.startIndex > 0 || zoomRange.endIndex < sortedPoints.length - 1);
@@ -159,10 +180,15 @@ export function EloHistoryChart({ points }: EloHistoryChartProps) {
         )}
       </div>
 
+      <p id="elo-history-chart-summary" className="sr-only">
+        {chartSummary}
+      </p>
+
       <div
         className="h-[28rem] w-full"
         role="img"
         aria-label="Matchmaking ELO timeline with peak, lowest, average and starting rating markers"
+        aria-describedby="elo-history-chart-summary"
       >
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart

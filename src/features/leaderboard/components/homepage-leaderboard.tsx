@@ -97,6 +97,7 @@ export function HomepageLeaderboard({
   if (error || !data) {
     return (
       <section
+        role="alert"
         aria-labelledby="top-players-error-heading"
         className="flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-red-500/30 p-6 text-center"
       >

@@ -66,6 +66,23 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
 
   const secondPlayerHasData = players[1].points.length > 0;
 
+  const summaryText = players
+    .map((player) => {
+      const firstPoint = player.points[0];
+      const lastPoint = player.points.at(-1);
+
+      if (!firstPoint || !lastPoint) {
+        return `${player.name} has no matchmaking ELO history in this period.`;
+      }
+
+      const change = lastPoint.rating - firstPoint.rating;
+      const direction =
+        change > 0 ? "gained" : change < 0 ? "lost" : "changed by";
+
+      return `${player.name} started at ${firstPoint.rating.toLocaleString()} ELO and ended at ${lastPoint.rating.toLocaleString()} ELO, ${direction} ${Math.abs(change).toLocaleString()} points across ${player.points.length.toLocaleString()} recorded matches.`;
+    })
+    .join(" ");
+
   const ratings = data.flatMap((row) =>
     players
       .map((player) => row[getSeriesKey(player.profileId)])
@@ -104,7 +121,16 @@ export function EloComparisonChart({ players }: EloComparisonChartProps) {
         </div>
       )}
 
-      <div className="h-[24rem] w-full sm:h-[30rem]">
+      <p id="comparison-chart-summary" className="sr-only">
+        {summaryText}
+      </p>
+
+      <div
+        className="h-[24rem] w-full sm:h-[30rem]"
+        role="img"
+        aria-label="Matchmaking ELO comparison timeline"
+        aria-describedby="comparison-chart-summary"
+      >
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}

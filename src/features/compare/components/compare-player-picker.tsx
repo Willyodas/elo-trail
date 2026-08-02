@@ -161,6 +161,8 @@ export function ComparePlayerPicker({
           onFocus={handleFocus}
           placeholder={`Search for ${label.toLowerCase()}`}
           aria-label={`${label} search`}
+          aria-expanded={shouldShowResults && results.length > 0}
+          aria-controls={resultsRegionId}
           className={[
             "w-full rounded-lg border border-black/10 bg-black/[0.02] py-2.5 pr-3 pl-10 text-sm transition outline-none",
             "focus:border-black/30 focus:ring-4 focus:ring-black/5",
@@ -197,6 +199,8 @@ export function ComparePlayerPicker({
       {shouldShowResults && results.length > 0 && (
         <div
           id={resultsRegionId}
+          role="region"
+          aria-label={`${label} search results`}
           className="mt-3 max-h-80 overflow-y-auto rounded-lg border border-black/10 dark:border-white/10"
         >
           <div className="divide-y divide-black/10 dark:divide-white/10">
