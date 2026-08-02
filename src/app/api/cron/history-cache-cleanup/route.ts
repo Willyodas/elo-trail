@@ -2,6 +2,7 @@ import { after, NextResponse } from "next/server";
 
 import { deleteUnusedPlayerHistoryCaches } from "@/services/database";
 import {
+  deleteExpiredOperationalEvents,
   getCacheCleanupEventName,
   recordOperationalEvent,
   startOperationTimer,
@@ -22,6 +23,7 @@ function isAuthorised(request: Request): boolean {
 interface CleanupResponseBody {
   data?: {
     deletedCaches?: number;
+    deletedOperationalEvents?: number;
   };
 
   error?: {
@@ -49,7 +51,15 @@ async function handleCacheCleanup(request: Request) {
   }
 
   try {
-    const result = await deleteUnusedPlayerHistoryCaches();
+    const [cacheResult, observabilityResult] = await Promise.all([
+      deleteUnusedPlayerHistoryCaches(),
+      deleteExpiredOperationalEvents(),
+    ]);
+
+    const result = {
+      deletedCaches: cacheResult.deletedCaches,
+      deletedOperationalEvents: observabilityResult.deletedEvents,
+    };
 
     return NextResponse.json(
       {
@@ -60,6 +70,10 @@ async function handleCacheCleanup(request: Request) {
           "Cache-Control": "no-store",
 
           "X-Elo-Trail-Deleted-Caches": String(result.deletedCaches),
+
+          "X-Elo-Trail-Deleted-Operational-Events": String(
+            result.deletedOperationalEvents,
+          ),
         },
       },
     );
@@ -108,6 +122,16 @@ export async function GET(request: Request) {
       : typeof body?.data?.deletedCaches === "number"
         ? body.data.deletedCaches
         : 0;
+    const headerEventCount = Number(
+      response.headers.get("X-Elo-Trail-Deleted-Operational-Events"),
+    );
+
+    const deletedOperationalEvents = Number.isSafeInteger(headerEventCount)
+      ? headerEventCount
+      : typeof body?.data?.deletedOperationalEvents === "number"
+        ? body.data.deletedOperationalEvents
+        : 0;
+
     const errorCode =
       body?.error?.code ??
       (response.status === 401
@@ -131,6 +155,8 @@ export async function GET(request: Request) {
         authorised: response.status !== 401,
 
         deletedCaches,
+
+        deletedOperationalEvents,
       },
     });
   });
