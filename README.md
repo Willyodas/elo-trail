@@ -62,7 +62,7 @@ ELO Trail uses the AoE4World public API responsibly.
 
 ## Data Refresh Strategy
 
-- Homepage Top 8 leaderboard Refreshed once daily via scheduled Vercel Cron job and cached in PostgreSQL
+- Homepage Top 10 leaderboard Refreshed once daily via scheduled Vercel Cron job and cached in PostgreSQL
 - Player search results Cached for a short period with server-side and browser caching
 - Individual player history Cached and refreshed only when necessary, with browser cache-busting when new history is requested
 - Comparison data Reuses cached player history wherever possible
@@ -109,3 +109,6 @@ place a limit on PostgreSQL or automatically delete cached data.
 
 See `docs/observability.md` for metric definitions, capacity thresholds and
 operational guidance.
+
+See `docs/performance-production-review.md` for the repeatable Batch 9G
+performance, cache, cron and production-behaviour validation checklist.

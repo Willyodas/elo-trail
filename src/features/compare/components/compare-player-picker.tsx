@@ -161,7 +161,6 @@ export function ComparePlayerPicker({
           onFocus={handleFocus}
           placeholder={`Search for ${label.toLowerCase()}`}
           aria-label={`${label} search`}
-          aria-expanded={shouldShowResults && results.length > 0}
           aria-controls={resultsRegionId}
           className={[
             "w-full rounded-lg border border-black/10 bg-black/[0.02] py-2.5 pr-3 pl-10 text-sm transition outline-none",

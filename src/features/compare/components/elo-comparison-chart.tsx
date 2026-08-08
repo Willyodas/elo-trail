@@ -36,7 +36,7 @@ function getSeriesKey(profileId: number) {
 }
 
 function buildChartData(
-  players: [ComparisonPlayerSeries, ComparisonPlayerSeries],
+  players: Array<Pick<ComparisonPlayerSeries, "profileId" | "points">>,
 ): ComparisonChartRow[] {
   const rows = new Map<string, ComparisonChartRow>();
 
@@ -61,13 +61,22 @@ function buildChartData(
 }
 
 export function EloComparisonChart({ players }: EloComparisonChartProps) {
+  const firstPlayerProfileId = players[0].profileId;
+  const firstPlayerPoints = players[0].points;
+  const secondPlayerProfileId = players[1].profileId;
+  const secondPlayerPoints = players[1].points;
+
   const data = useMemo(
-    () => buildChartData(players),
+    () =>
+      buildChartData([
+        { profileId: firstPlayerProfileId, points: firstPlayerPoints },
+        { profileId: secondPlayerProfileId, points: secondPlayerPoints },
+      ]),
     [
-      players[0].profileId,
-      players[0].points,
-      players[1].profileId,
-      players[1].points,
+      firstPlayerProfileId,
+      firstPlayerPoints,
+      secondPlayerProfileId,
+      secondPlayerPoints,
     ],
   );
 
